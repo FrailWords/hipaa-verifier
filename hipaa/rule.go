@@ -30,7 +30,7 @@ func MaskingFn(value string, args ...string) string {
 }
 
 func HashFn(value string, _ ...string) string {
-	return utils.Sha1HashOfValue(value)
+	return utils.Sha512HashOfValue(value)
 }
 
 type ProtectFunctions string
