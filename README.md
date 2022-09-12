@@ -1,3 +1,7 @@
+## Pre-requisite
+
+This project requires Golang to be installed - https://go.dev/doc/install
+
 ## Description
 
 `HIPAA-Verifier` is responsible for the following - 
@@ -21,8 +25,15 @@
 
 ## Running 
 
+1. Download dependencies -
 ```shell
-go run server.go
+make deps
+```
+
+2. Run the server -
+
+```shell
+make run
 ```
 
 This will bring up a webserver at `http://localhost:4000/` having the following 2 endpoints - 
