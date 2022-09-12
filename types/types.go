@@ -19,4 +19,5 @@ const (
 	SsnMask          = "XXX-XXX-XXXX"
 	DateMask         = "XXXX-XX-XX"
 	PhoneNumberMask  = "(XXX)-XXX-XXXX"
+	Sha512Regex      = "^\\w{128}$"
 )

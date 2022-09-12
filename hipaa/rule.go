@@ -30,7 +30,7 @@ func MaskingFn(value string, args ...string) string {
 }
 
 func HashFn(value string, _ ...string) string {
-	return utils.Sha512HashOfValue(value)
+	return utils.Sha512HashOfValue(value) // salted hash
 }
 
 type ProtectFunctions string
@@ -79,9 +79,13 @@ type VerifyRule struct {
 	Args      []string
 }
 
-func MatchRegexFn(value string, args ...string) bool {
+func MatchRegexFn(value string, positive bool, args ...string) bool {
 	match, _ := regexp.Match(args[0], []byte(value))
-	return match
+	if positive {
+		return match
+	} else {
+		return !match
+	}
 }
 
 type VerifyFunctions string
@@ -90,7 +94,7 @@ const (
 	MatchRegularExpression VerifyFunctions = "MatchRegexFn"
 )
 
-var VerifyFunctionsMap = map[VerifyFunctions]func(string, ...string) bool{
+var VerifyFunctionsMap = map[VerifyFunctions]func(string, bool, ...string) bool{
 	MatchRegularExpression: MatchRegexFn,
 }
 
@@ -110,5 +114,15 @@ var VerifyRules = map[types.PhiField]VerifyRule{
 		Type: RegexMatcher,
 		Fn:   MatchRegularExpression,
 		Args: []string{types.PhoneNumberRegex},
+	},
+	types.GivenName: {
+		Type: RegexMatcher,
+		Fn:   MatchRegularExpression,
+		Args: []string{types.Sha512Regex},
+	},
+	types.FamilyName: {
+		Type: RegexMatcher,
+		Fn:   MatchRegularExpression,
+		Args: []string{types.Sha512Regex},
 	},
 }

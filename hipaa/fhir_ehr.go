@@ -21,10 +21,42 @@ var protectAndVerifyRules = []FhirProtectRule{
 			record.BirthDate = newValue
 		},
 		Verify: func(record types.EhrRecord) bool {
-			value := types.BirthDate
+			value := record.BirthDate
 			verifyRule := VerifyRules[types.BirthDate]
 			verifyFn := VerifyFunctionsMap[verifyRule.Fn]
-			return !verifyFn(value, verifyRule.Args...)
+			return verifyFn(value, false, verifyRule.Args...)
+		},
+	},
+	{
+		Field: types.GivenName,
+		Protect: func(record *types.EhrRecord) {
+			existingValue := record.Name[0].Given[0]
+			protectRule := ProtectRules[types.GivenName]
+			protectFn := ProtectFunctionsMap[protectRule.Fn]
+			newValue := protectFn(existingValue, protectRule.Args...)
+			record.Name[0].Given[0] = newValue
+		},
+		Verify: func(record types.EhrRecord) bool {
+			value := record.Name[0].Given[0]
+			verifyRule := VerifyRules[types.GivenName]
+			verifyFn := VerifyFunctionsMap[verifyRule.Fn]
+			return verifyFn(value, true, verifyRule.Args...)
+		},
+	},
+	{
+		Field: types.FamilyName,
+		Protect: func(record *types.EhrRecord) {
+			existingValue := record.Name[0].Family
+			protectRule := ProtectRules[types.FamilyName]
+			protectFn := ProtectFunctionsMap[protectRule.Fn]
+			newValue := protectFn(existingValue, protectRule.Args...)
+			record.Name[0].Family = newValue
+		},
+		Verify: func(record types.EhrRecord) bool {
+			value := record.Name[0].Family
+			verifyRule := VerifyRules[types.FamilyName]
+			verifyFn := VerifyFunctionsMap[verifyRule.Fn]
+			return verifyFn(value, true, verifyRule.Args...)
 		},
 	},
 	{
@@ -47,10 +79,10 @@ var protectAndVerifyRules = []FhirProtectRule{
 				if telecom.System == "phone" {
 					value := telecomValues[idx].Value
 					verifyFn := VerifyFunctionsMap[verifyRule.Fn]
-					return !verifyFn(value, verifyRule.Args...)
+					return verifyFn(value, false, verifyRule.Args...)
 				}
 			}
-			return false
+			return true
 		},
 	},
 }
@@ -69,9 +101,9 @@ func ProtectDataRecords(data []*types.EhrRecord) []*types.EhrRecord {
 }
 
 func identifyAndVerify(data types.EhrRecord) bool {
-	var allFieldsVerified = false
+	var allFieldsVerified = true
 	for _, rule := range protectAndVerifyRules {
-		allFieldsVerified = allFieldsVerified || rule.Verify(data)
+		allFieldsVerified = allFieldsVerified && rule.Verify(data)
 	}
 	return allFieldsVerified
 }
@@ -79,7 +111,7 @@ func identifyAndVerify(data types.EhrRecord) bool {
 func VerifyDataRecords(data []types.EhrRecord) bool {
 	var allFieldsProtectedAndVerified = true
 	for _, record := range data {
-		allFieldsProtectedAndVerified = allFieldsProtectedAndVerified || identifyAndVerify(record)
+		allFieldsProtectedAndVerified = allFieldsProtectedAndVerified && identifyAndVerify(record)
 	}
 	return allFieldsProtectedAndVerified
 }
